@@ -21,11 +21,13 @@ public class Breaker implements IIdentical<Breaker> {
 	private String name;
 	private String description;
 	private int sizeAmps;
+	private int phaseOffsetNs;
 	private double calibrationFactor;
 	private double lowPassFilter;
 	private BreakerPolarity polarity;
 	private boolean doublePower;
 	private BreakerType type;
+	private boolean main;
 	private transient String key;
 
 	public Breaker() {
@@ -139,6 +141,14 @@ public class Breaker implements IIdentical<Breaker> {
 		sizeAmps = _sizeAmps;
 	}
 
+	public int getPhaseOffsetNs() {
+		return phaseOffsetNs;
+	}
+
+	public void setPhaseOffsetNs(int _phaseOffsetNs) {
+		phaseOffsetNs = _phaseOffsetNs;
+	}
+
 	public double getLowPassFilter() {
 		return Math.abs(lowPassFilter) < 0.05 ? 1.6 : lowPassFilter;
 	}
@@ -148,7 +158,7 @@ public class Breaker implements IIdentical<Breaker> {
 	}
 
 	public BreakerPolarity getPolarity() {
-		return polarity;
+		return polarity == null ? BreakerPolarity.NORMAL : polarity;
 	}
 
 	public void setPolarity(BreakerPolarity _polarity) {
@@ -184,6 +194,14 @@ public class Breaker implements IIdentical<Breaker> {
 		type = _type;
 	}
 
+	public boolean isMain() {
+		return main;
+	}
+
+	public void setMain(boolean _main) {
+		main = _main;
+	}
+
 	public double getFinalCalibrationFactor() {
 		return getCalibrationFactor() * getSizeAmps() / 380.0;
 	}
@@ -194,8 +212,24 @@ public class Breaker implements IIdentical<Breaker> {
 		return key;
 	}
 
+	public int getIntKey() {
+		return intKey(panel, space);
+	}
+
+	public static int intKeyToPanel(int _intKey) {
+		return _intKey/10000;
+	}
+
+	public static int intKeyToSpace(int _intKey) {
+		return _intKey%10000;
+	}
+
 	public static String key(int _panel, int _space) {
 		return String.format("%d-%d", _panel, _space);
+	}
+
+	public static int intKey(int _panel, int _space) {
+		return 10000*_panel + _space;
 	}
 
 	public static int portToChip(int _port) {
@@ -253,7 +287,7 @@ public class Breaker implements IIdentical<Breaker> {
 	@Override
 	public boolean isIdentical(Breaker _o) {
 		if (this == _o) return true;
-		return panel == _o.panel && space == _o.space && meter == _o.meter && hub == _o.hub && port == _o.port && sizeAmps == _o.sizeAmps && Double.compare(_o.calibrationFactor, calibrationFactor) == 0 && Double.compare(_o.lowPassFilter, lowPassFilter) == 0 && doublePower == _o.doublePower && Objects.equals(name, _o.name) && Objects.equals(description, _o.description) && polarity == _o.polarity && type == _o.type && Objects.equals(key, _o.key);
+		return panel == _o.panel && space == _o.space && meter == _o.meter && hub == _o.hub && port == _o.port && sizeAmps == _o.sizeAmps && phaseOffsetNs == _o.phaseOffsetNs && Double.compare(_o.calibrationFactor, calibrationFactor) == 0 && Double.compare(_o.lowPassFilter, lowPassFilter) == 0 && doublePower == _o.doublePower && Objects.equals(name, _o.name) && Objects.equals(description, _o.description) && polarity == _o.polarity && type == _o.type;
 	}
 
 	@Override

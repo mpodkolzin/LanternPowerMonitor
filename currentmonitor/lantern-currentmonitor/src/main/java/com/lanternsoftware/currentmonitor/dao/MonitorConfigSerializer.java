@@ -34,10 +34,9 @@ public class MonitorConfigSerializer extends AbstractDaoSerializer<MonitorConfig
 		d.put("debug", _o.isDebug());
 		d.put("connect_timeout", _o.getConnectTimeout());
 		d.put("socket_timeout", _o.getSocketTimeout());
-		d.put("update_interval", _o.getUpdateInterval());
-		d.put("auto_update", _o.isAutoUpdate());
-		d.put("auto_calibration_voltage", _o.getAutoCalibrationVoltage());
+		d.put("post_samples", _o.isPostSamples());
 		d.put("needs_calibration", _o.isNeedsCalibration());
+		d.put("accept_self_signed_certificates", _o.isAcceptSelfSignedCertificates());
 		d.put("mqtt_broker_url", _o.getMqttBrokerUrl());
 		d.put("mqtt_user_name", _o.getMqttUserName());
 		d.put("mqtt_password", _o.getMqttPassword());
@@ -60,10 +59,9 @@ public class MonitorConfigSerializer extends AbstractDaoSerializer<MonitorConfig
 		o.setDebug(DaoSerializer.getBoolean(_d, "debug"));
 		o.setConnectTimeout(DaoSerializer.getInteger(_d, "connect_timeout"));
 		o.setSocketTimeout(DaoSerializer.getInteger(_d, "socket_timeout"));
-		o.setUpdateInterval(DaoSerializer.getInteger(_d, "update_interval"));
-		o.setAutoUpdate(DaoSerializer.getBoolean(_d, "auto_update"));
-		o.setAutoCalibrationVoltage(DaoSerializer.getFloat(_d, "auto_calibration_voltage"));
+		o.setPostSamples(DaoSerializer.getBoolean(_d, "post_samples"));
 		o.setNeedsCalibration(DaoSerializer.getBoolean(_d, "needs_calibration"));
+		o.setAcceptSelfSignedCertificates(DaoSerializer.getBoolean(_d, "accept_self_signed_certificates"));
 		o.setMqttBrokerUrl(DaoSerializer.getString(_d, "mqtt_broker_url"));
 		o.setMqttUserName(DaoSerializer.getString(_d, "mqtt_user_name"));
 		o.setMqttPassword(DaoSerializer.getString(_d, "mqtt_password"));

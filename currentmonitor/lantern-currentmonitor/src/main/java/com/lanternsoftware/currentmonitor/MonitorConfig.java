@@ -2,6 +2,7 @@ package com.lanternsoftware.currentmonitor;
 
 
 import com.lanternsoftware.datamodel.currentmonitor.Breaker;
+import com.lanternsoftware.util.NullUtils;
 import com.lanternsoftware.util.dao.annotations.DBSerializable;
 
 import java.util.List;
@@ -12,14 +13,13 @@ public class MonitorConfig {
     private String authCode;
     private String username;
     private String password;
-    private int hub;
+    private int hub = -1;
     private boolean debug;
     private int connectTimeout;
     private int socketTimeout;
-    private int updateInterval;
-    private boolean autoUpdate;
-    private float autoCalibrationVoltage;
-    private boolean needsCalibration;
+    private boolean postSamples = false;
+    private boolean needsCalibration = true;
+    private boolean acceptSelfSignedCertificates = false;
     private String mqttBrokerUrl;
     private String mqttUserName;
     private String mqttPassword;
@@ -37,7 +37,7 @@ public class MonitorConfig {
     }
 
     public String getHost() {
-        return host;
+        return NullUtils.isEmpty(host) ? "https://lanternpowermonitor.com/currentmonitor/" : host;
     }
 
     public void setHost(String _host) {
@@ -100,28 +100,12 @@ public class MonitorConfig {
         socketTimeout = _socketTimeout;
     }
 
-    public int getUpdateInterval() {
-        return updateInterval == 0 ? 300 : updateInterval;
+    public boolean isPostSamples() {
+        return postSamples;
     }
 
-    public void setUpdateInterval(int _updateInterval) {
-        updateInterval = _updateInterval;
-    }
-
-    public boolean isAutoUpdate() {
-        return autoUpdate;
-    }
-
-    public void setAutoUpdate(boolean _autoUpdate) {
-        autoUpdate = _autoUpdate;
-    }
-
-    public float getAutoCalibrationVoltage() {
-        return autoCalibrationVoltage;
-    }
-
-    public void setAutoCalibrationVoltage(float _autoCalibrationVoltage) {
-        autoCalibrationVoltage = _autoCalibrationVoltage;
+    public void setPostSamples(boolean _postSamples) {
+        postSamples = _postSamples;
     }
 
     public boolean isNeedsCalibration() {
@@ -130,6 +114,14 @@ public class MonitorConfig {
 
     public void setNeedsCalibration(boolean _needsCalibration) {
         needsCalibration = _needsCalibration;
+    }
+
+    public boolean isAcceptSelfSignedCertificates() {
+        return acceptSelfSignedCertificates;
+    }
+
+    public void setAcceptSelfSignedCertificates(boolean _acceptSelfSignedCertificates) {
+        acceptSelfSignedCertificates = _acceptSelfSignedCertificates;
     }
 
     public String getMqttBrokerUrl() {

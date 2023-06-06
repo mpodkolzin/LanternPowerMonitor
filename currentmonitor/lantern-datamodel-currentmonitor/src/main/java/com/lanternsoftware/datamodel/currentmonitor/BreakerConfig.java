@@ -10,6 +10,7 @@ import com.lanternsoftware.util.dao.annotations.PrimaryKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @DBSerializable(autogen = false)
 public class BreakerConfig implements IIdentical<BreakerConfig> {
@@ -20,6 +21,7 @@ public class BreakerConfig implements IIdentical<BreakerConfig> {
 	private List<BreakerHub> breakerHubs;
 	private List<BreakerGroup> breakerGroups;
 	private List<BillingRate> billingRates;
+	private List<BillingPlan> billingPlans;
 	private int version;
 
 	public BreakerConfig() {
@@ -69,6 +71,14 @@ public class BreakerConfig implements IIdentical<BreakerConfig> {
 		breakerGroups = _breakerGroups;
 	}
 
+	public List<BillingPlan> getBillingPlans() {
+		return billingPlans;
+	}
+
+	public void setBillingPlans(List<BillingPlan> _billingPlans) {
+		billingPlans = _billingPlans;
+	}
+
 	public List<BillingRate> getBillingRates() {
 		return billingRates;
 	}
@@ -83,6 +93,10 @@ public class BreakerConfig implements IIdentical<BreakerConfig> {
 
 	public void setVersion(int _version) {
 		version = _version;
+	}
+
+	public BreakerGroup getRootGroup() {
+		return CollectionUtils.getFirst(breakerGroups);
 	}
 
 	public List<Breaker> getAllBreakers() {
@@ -172,6 +186,14 @@ public class BreakerConfig implements IIdentical<BreakerConfig> {
 		return null;
 	}
 
+	public Meter getMeterForHub(int _hub) {
+		Meter m = null;
+		Breaker b = CollectionUtils.filterOne(getAllBreakers(), _b->_b.getHub() == _hub);
+		if (b != null)
+			m = CollectionUtils.filterOne(meters, _m->_m.getIndex() == b.getMeter());
+		return (m != null) ? m : new Meter(getAccountId(), 0, "Main");
+	}
+
 	public BreakerGroup findParentGroup(BreakerGroup _group) {
 		for (BreakerGroup group : CollectionUtils.makeNotNull(breakerGroups)) {
 			BreakerGroup parent = group.findParentGroup(_group);
@@ -181,8 +203,20 @@ public class BreakerConfig implements IIdentical<BreakerConfig> {
 		return null;
 	}
 
+	public boolean containsPolarity(Set<String> _groupIds, BreakerPolarity _polarity) {
+		for (BreakerGroup subGroup : CollectionUtils.makeNotNull(breakerGroups)) {
+			if (subGroup.containsPolarity(_groupIds, _polarity))
+				return true;
+		}
+		return false;
+	}
+
 	public BillingCurrency getCurrency() {
-		return CollectionUtils.getFirst(CollectionUtils.transformToSet(billingRates, BillingRate::getCurrency));
+		return CollectionUtils.getFirst(CollectionUtils.transformToSet(CollectionUtils.aggregate(billingPlans, BillingPlan::getRates), BillingRate::getCurrency));
+	}
+
+	public boolean isMainsPowerTrackedForMeter(int _meter) {
+		return CollectionUtils.anyQualify(getAllBreakers(), _b->_b.isMain() && (_b.getMeter() == _meter));
 	}
 
 	@Override
@@ -190,13 +224,13 @@ public class BreakerConfig implements IIdentical<BreakerConfig> {
 		if (this == _o) return true;
 		if (_o == null || getClass() != _o.getClass()) return false;
 		BreakerConfig that = (BreakerConfig) _o;
-		return accountId == that.accountId && CollectionUtils.isEqual(meters, that.meters) && CollectionUtils.isEqual(panels, that.panels) && CollectionUtils.isEqual(breakerHubs, that.breakerHubs) && CollectionUtils.isEqual(breakerGroups, that.breakerGroups) && CollectionUtils.isEqual(billingRates, that.billingRates);
+		return accountId == that.accountId && CollectionUtils.isEqual(meters, that.meters) && CollectionUtils.isEqual(panels, that.panels) && CollectionUtils.isEqual(breakerHubs, that.breakerHubs) && CollectionUtils.isEqual(breakerGroups, that.breakerGroups) && CollectionUtils.isEqual(billingPlans, that.billingPlans);
 	}
 
 	@Override
 	public boolean isIdentical(BreakerConfig _o) {
 		if (this == _o) return true;
-		return accountId == _o.accountId && CollectionUtils.isIdentical(meters, _o.meters) && CollectionUtils.isIdentical(panels, _o.panels) && CollectionUtils.isIdentical(breakerHubs, _o.breakerHubs) && CollectionUtils.isIdentical(breakerGroups, _o.breakerGroups) && CollectionUtils.isEqual(billingRates, _o.billingRates);
+		return accountId == _o.accountId && CollectionUtils.isIdentical(meters, _o.meters) && CollectionUtils.isIdentical(panels, _o.panels) && CollectionUtils.isIdentical(breakerHubs, _o.breakerHubs) && CollectionUtils.isIdentical(breakerGroups, _o.breakerGroups) && CollectionUtils.isIdentical(billingPlans, _o.billingPlans);
 	}
 
 	@Override

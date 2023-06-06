@@ -1,31 +1,31 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.lanternsoftware.currentmonitor</groupId>
 	<artifactId>lantern-dataaccess-currentmonitor</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0.0</version>
+	<version>1.1.0</version>
 	<name>lantern-dataaccess-currentmonitor</name>
 
-	<properties>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
-	</properties>
+	<parent>
+		<groupId>com.lanternsoftware.currentmonitor</groupId>
+		<artifactId>currentmonitor</artifactId>
+		<version>1.1.0</version>
+	</parent>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.lanternsoftware.currentmonitor</groupId>
 			<artifactId>lantern-datamodel-currentmonitor</artifactId>
-			<version>1.0.0</version>
+			<version>${cm.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.lanternsoftware.rules</groupId>
 			<artifactId>lantern-datamodel-rules</artifactId>
-			<version>1.0.0</version>
+			<version>${rules.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.lanternsoftware.util</groupId>
 			<artifactId>lantern-util-dao-mongo</artifactId>
-			<version>1.0.0</version>
+			<version>${util.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mindrot</groupId>
@@ -43,7 +43,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.2</version>
+				<version>3.10.1</version>
 				<executions>
 					<execution>
 						<goals>
@@ -56,14 +56,14 @@
 					<optimize>true</optimize>
 					<showDeprecation>true</showDeprecation>
 					<encoding>UTF-8</encoding>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>${maven.compiler.source}</source>
+					<target>${maven.compiler.target}</target>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>2.4</version>
+				<version>3.2.1</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -72,16 +72,6 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.5</version>
-				<configuration>
-					<archive>
-						<index>true</index>
-					</archive>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

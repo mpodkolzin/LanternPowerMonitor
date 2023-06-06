@@ -1,6 +1,10 @@
 # LanternPowerMonitor
 The Lantern Power Monitor is a Raspberry Pi service, Java Web Service, and Android application that allow you to monitor every electrical breaker in your house, regardless of how many panels or breakers you have.
 <br><br>
+The official website has a lot of technical information:
+<br>
+[LanternPowerMonitor.com](https://lanternpowermonitor.com)
+<br><br>
 Here's an imgur album showing what this is and how it works:
 <br>
 [Lantern Power Monitor - Imgur](https://imgur.com/gallery/SPOJYBR)
@@ -9,12 +13,21 @@ The android application is available here:
 <br>
 [Lantern Power Monitor - Google Play](https://play.google.com/store/apps/details?id=com.lanternsoftware.lantern)
 <br><br>
+The iOS application is available here:
+<br>
+[Lantern Power Monitor - App Store](https://apps.apple.com/us/app/lantern-power-monitor/id1620735464)
+<br><br>
+The LanternPowerMonitor subreddit is a great place to ask questions and stay tuned for updates and news.
+<br>
+[/r/LanternPowerMonitor](https://www.reddit.com/r/LanternPowerMonitor/)
+<br><br>
+
 You can use the bom in the source below to buy the parts to build a hub.
 
 # Index
 ## bom
 An excel file that lists every part required to construct a Lantern Power Monitor Hub and links to where each part can be purchased.<br>
-I'd much prefer everyone use this bom to get their own parts.  Building kits is tedious.
+
 ## case
 STL files and Blender models to print your own case for a Lantern Power Monitor Hub
 ## currentmonitor
@@ -36,14 +49,15 @@ This is only tangentially related.  A java library for running a zwave controlle
 
 # Ok, how do I run this thing?
 The easiest way to run the software on a hub is to download a pre-built SD card image.  One can be downloaded here:<br>
-[hub_1.0.4.zip](https://lanternsoftware.com:13781/hub_1.0.4.zip)<br><br>
+[hub_1.1.1.zip](https://cf.lanternpowermonitor.com/hub_1.1.1.zip)
+<br><br>
 Flash this to any micro sd card (4gig or larger) and you're good to go.  Fire up the hub and the phone app should be able to connect to it via bluetooth to finish the configuration.  The default password on this image is pi/LanternPowerMonitor<br><br>
-When you add the hub to your configuration via the app, you can change where the hub posts data.  If you use lanternsoftware.com (the default host), your data will be stored there securely and won't be shared with or sold to anyone.  If you really want to run your own server, you're of course welcome to do that instead, instructions are located further down.
+When you add the hub to your configuration via the app, you can change where the hub posts data.  If you use lanternpowermonitor.com (the default host), your data will be stored there securely and won't be shared with or sold to anyone.  If you really want to run your own server, you're of course welcome to do that instead, instructions are located further down.
 
 ## Now that the service is running on the pi, how do I configure everything in the android app?
 1. Create your panel in the "Configure Panels" page from the main menu. Before you have your hub connected, there will be no place to select a hub and port for each breaker. Don't worry, we'll get to that later.
 
-1. With your hub plugged in and running for at least 30 seconds or so, go into the "Configure Hubs" page from the main menu. In here you'll see a status of "Scanning for Hubs..." (if you're on at least 1.0.7 of the app). If you're in range of your hub and its service is running, the app should find it pretty quickly (less than 15 seconds). If this is the first hub you've added, it will prompt you for your wifi credentials. After that, it will send via bluetooth the hub index (so it knows which hub it is), host (so it knows where to post data), auth code (so it knows which account it is and can post data), the encrypted wifi credentials, and finally a command to reboot.
+1. With your hub plugged in and running for at least a minute, go into the "Configure Hubs" page from the main menu. In here you'll see a status of "Scanning for Hubs..." If you're in range of your hub and its service is running, the app should find it pretty quickly (less than 15 seconds). If this is the first hub you've added, it will prompt you for your wifi credentials. After that, it will send via bluetooth the hub index (so it knows which hub it is), host (so it knows where to post data), auth code (so it knows which account it is and can post data), the encrypted wifi credentials, and finally a command to reboot.
 
 1. After your hub reboots, it should acquire an ip from your router, start the service, and try to start posting data. The hubs will try to auto-calibrate your voltage to 120V too, but if your AC/AC transformer is not plugged in, it will notice that and not try to auto-calibrate. It will continue to try to auto-calibrate each time you restart the hub until it does so succesfully.
 
@@ -62,27 +76,17 @@ First, you and I will get along just fine.  Second, do a reactor build from the 
 The compiled service will be at LanternPowerMonitor/currentmonitor/lantern-currentmonitor/target/lantern-currentmonitor.jar<br>
 This is a shaded jar that contains all of the required components to function.  It must be copied to /opt/currentmonitor on the pi.<br><br>
 
-After that, you need to install wiring-pi:
+After that, you need to install pigpio:
 ```
-sudo apt-get install wiringpi
+sudo apt-get install pigpio
 ```
 You also need to have java 1.8 or newer installed.
-
-Create a configuration file at /opt/currentmonitor/config.json<br>
-Use the format below to get started
-```
-{
-	"hub": 0,
-	"host": "https://lanternsoftware.com/currentmonitor",
-	"auto_calibration_voltage": 120.0,
-	"needs_calibration": true
-}
-```
 To install the current monitor service, use a service file like the one below:
 ```
 [Unit]
 Description=Current Monitor
-After=syslog.target network.target
+After=syslog.target network-online.target
+Wants=network-online.target
 
 [Service]
 Type=simple
@@ -103,25 +107,13 @@ Move your currentmonitor.service file to /etc/systemd/system/ and enable the ser
 sudo mv currentmonitor.service /etc/systemd/system/
 sudo systemctl enable currentmonitor
 ```
-After you do all of this and have the service running, the app still won't be able to connect to the service via bluetooth due to a bug in bluez in the raspbian OS.<br>
-To fix this, you must manually recompile bluez after changing some of the source. (Ready to just download that SD image yet?)<br>
-In the file gatt-helpers.c, in the method bt_gatt_exchange_mtu, change the line<br>
-```
-id = bt_att_send(att, BT_ATT_OP_MTU_REQ, pdu, sizeof(pdu), mtu_cb, op, destroy_mtu_op);<br>
-```
-to<br>
-```
-id = bt_att_send(att, BT_ATT_OP_MTU_RSP, pdu, sizeof(pdu), mtu_cb, op, destroy_mtu_op);<br>
-```
-I need to submit this fix to the bluez project, but I haven't taken the time yet.
-
 ## web service
 So you don't trust me with your data, eh?  No worries, I get it.  Here's how you run your own server.<br><br>
 After your reactor build, the compiled war will be at LanternPowerMonitor/currentmonitor/lantern-service-currentmonitor/target/lantern-service-currentmonitor-1.x.x.war
 That can be deployed to tomcat.  The 'host' parameter in the raspberry pi config.json file needs to point to wherever you deploy the service so your hubs post the data to your server instead of the official lantern software one.<br>
 I'd recommend a valid dns entry and an ssl certificate, but, it's up to you, you're already knee deep in "I'll do what I want" territory here.<br><br>
 Before you deploy it, you need to generate a config file that contains the mongodb credentials.<br>
-There is a file at lantern-service-currentmonitor/src/test/java/com/lanternsoftware/currentmonitor/CreateMongoConfig.java that can do this for you.<br>
+There is a file at lantern-config-currentmonitor/src/main/java/com/lanternsoftware/currentmonitor/CreateMongoConfig.java that can do this for you.<br>
 Place the generated config file in /opt/tomcat (which is where I have tomcat installed).  If you want it to be read from somewhere else, you can modify the paths in LanternFiles.java<br><br>
 The last thing you need is a private aes key to encrypt user auth tokens.  One of those can be generated with CreateAuthKey.java.<br>
 I realize these instructions aren't complete, but if you're going down this path, I suspect you sort of already know what you're doing, so hopefully that's enough to point you in the right direction.

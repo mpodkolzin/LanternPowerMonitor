@@ -607,29 +607,43 @@ public class CollectionUtils {
         return ret;
     }
 
+    public static <T, V extends Comparable<V>> Map<V, T> transformToSortedMap(Collection<T> _coll, ITransformer<? super T, V> _transformer) {
+        return transformToMap(_coll, _transformer, new TreeMap<>());
+    }
+
     public static <T, V> Map<V, T> transformToMap(Collection<T> _coll, ITransformer<? super T, V> _transformer) {
-        Map<V, T> mapValues = new HashMap<>();
+        return transformToMap(_coll, _transformer, new HashMap<>());
+    }
+
+    public static <T, V> Map<V, T> transformToMap(Collection<T> _coll, ITransformer<? super T, V> _transformer, Map<V, T> _map) {
         if ((_coll == null) || (_transformer == null))
-            return mapValues;
+            return _map;
         for (T t : _coll) {
             V v = _transformer.transform(t);
             if (v != null)
-                mapValues.put(v, t);
+                _map.put(v, t);
         }
-        return mapValues;
+        return _map;
+    }
+
+    public static <T, V extends Comparable<V>, U> Map<V, U> transformToSortedMap(Collection<T> _coll, ITransformer<? super T, V> _keyTrans, ITransformer<? super T, U> _valTrans) {
+        return transformToMap(_coll, _keyTrans, _valTrans, new TreeMap<>());
     }
 
     public static <T, V, U> Map<V, U> transformToMap(Collection<T> _coll, ITransformer<? super T, V> _keyTrans, ITransformer<? super T, U> _valTrans) {
-        Map<V, U> mapValues = new HashMap<>();
+        return transformToMap(_coll, _keyTrans, _valTrans, new HashMap<>());
+    }
+
+    public static <T, V, U> Map<V, U> transformToMap(Collection<T> _coll, ITransformer<? super T, V> _keyTrans, ITransformer<? super T, U> _valTrans, Map<V, U> _map) {
         if ((_coll == null) || (_keyTrans == null) || (_valTrans == null))
-            return mapValues;
+            return _map;
         for (T t : _coll) {
             V v = _keyTrans.transform(t);
             U u = _valTrans.transform(t);
             if ((v != null) && (u != null))
-                mapValues.put(v, u);
+                _map.put(v, u);
         }
-        return mapValues;
+        return _map;
     }
 
     public static <T, V> Map<V, List<T>> transformToMultiMap(Collection<T> _coll, ITransformer<? super T, V> _transformer) {
@@ -954,5 +968,49 @@ public class CollectionUtils {
         if (_arr == null)
             return 0;
         return _arr.length;
+    }
+
+    public static byte[] toByteArray(float[] _floats) {
+        if ((_floats == null) || (_floats.length == 0))
+            return null;
+        ByteBuffer bb = ByteBuffer.allocate(_floats.length * 4);
+        for (float f : _floats) {
+            bb.putFloat(f);
+        }
+        return bb.array();
+    }
+
+    public static float[] toFloatArray(byte[] _bytes) {
+        if ((_bytes == null) || (_bytes.length == 0))
+            return null;
+        int offset = 0;
+        float[] floats = new float[_bytes.length/4];
+        ByteBuffer bb = ByteBuffer.wrap(_bytes);
+        while (bb.hasRemaining()) {
+            floats[offset++] = bb.getFloat();
+        }
+        return floats;
+    }
+
+    public static byte[] toByteArray(double[] _doubles) {
+        if ((_doubles == null) || (_doubles.length == 0))
+            return null;
+        ByteBuffer bb = ByteBuffer.allocate(_doubles.length * 8);
+        for (double d : _doubles) {
+            bb.putDouble(d);
+        }
+        return bb.array();
+    }
+
+    public static double[] toDoubleArray(byte[] _bytes) {
+        if ((_bytes == null) || (_bytes.length == 0))
+            return null;
+        int offset = 0;
+        double[] doubles = new double[_bytes.length/8];
+        ByteBuffer bb = ByteBuffer.wrap(_bytes);
+        while (bb.hasRemaining()) {
+            doubles[offset++] = bb.getDouble();
+        }
+        return doubles;
     }
 }

@@ -35,11 +35,13 @@ public class BreakerSerializer extends AbstractDaoSerializer<Breaker>
 		d.put("name", _o.getName());
 		d.put("description", _o.getDescription());
 		d.put("size_amps", _o.getSizeAmps());
+		d.put("phase_offset_ns", _o.getPhaseOffsetNs());
 		d.put("calibration_factor", _o.getCalibrationFactor());
 		d.put("low_pass_filter", _o.getLowPassFilter());
 		d.put("polarity", DaoSerializer.toEnumName(_o.getPolarity()));
 		d.put("double_power", _o.isDoublePower());
 		d.put("type", DaoSerializer.toEnumName(_o.getType()));
+		d.put("main", _o.isMain());
 		return d;
 	}
 
@@ -55,11 +57,13 @@ public class BreakerSerializer extends AbstractDaoSerializer<Breaker>
 		o.setName(DaoSerializer.getString(_d, "name"));
 		o.setDescription(DaoSerializer.getString(_d, "description"));
 		o.setSizeAmps(DaoSerializer.getInteger(_d, "size_amps"));
+		o.setPhaseOffsetNs(DaoSerializer.getInteger(_d, "phase_offset_ns"));
 		o.setCalibrationFactor(DaoSerializer.getDouble(_d, "calibration_factor"));
 		o.setLowPassFilter(DaoSerializer.getDouble(_d, "low_pass_filter"));
 		o.setPolarity(DaoSerializer.getEnum(_d, "polarity", BreakerPolarity.class));
 		o.setDoublePower(DaoSerializer.getBoolean(_d, "double_power"));
 		o.setType(DaoSerializer.getEnum(_d, "type", BreakerType.class));
+		o.setMain(DaoSerializer.getBoolean(_d, "main"));
 		return o;
 	}
 }

@@ -1,21 +1,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.lanternsoftware.zwave</groupId>
 	<artifactId>lantern-zwave</artifactId>
 	<packaging>jar</packaging>
 	<version>1.0.0</version>
 	<name>lantern-zwave</name>
 
-	<properties>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
-	</properties>
+	<parent>
+		<groupId>com.lanternsoftware.zwave</groupId>
+		<artifactId>zwave</artifactId>
+		<version>1.0.0</version>
+	</parent>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.neuronrobotics</groupId>
 			<artifactId>nrjavaserial</artifactId>
 			<version>5.2.1</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -30,7 +31,7 @@
 		<dependency>
 			<groupId>com.lanternsoftware.util</groupId>
 			<artifactId>lantern-util-dao</artifactId>
-			<version>1.0.0</version>
+			<version>${util.version}</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -43,7 +44,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.2</version>
+				<version>3.10.1</version>
 				<executions>
 					<execution>
 						<goals>
@@ -56,14 +57,14 @@
 					<optimize>true</optimize>
 					<showDeprecation>true</showDeprecation>
 					<encoding>UTF-8</encoding>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>${maven.compiler.source}</source>
+					<target>${maven.compiler.target}</target>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>3.2.1</version>
+				<version>3.3.0</version>
 				<configuration>
 					<createDependencyReducedPom>false</createDependencyReducedPom>
 					<filters>
